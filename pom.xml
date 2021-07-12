@@ -6,7 +6,7 @@
 
     <groupId>io.raven.vertx</groupId>
     <artifactId>vertx-service-discovery-backend-ranger</artifactId>
-    <version>4.0.3-1</version>
+    <version>4.0.3-2</version>
 
     <name>vertx-ranger</name>
     <url>https://github.com/phaneesh/vertx-ranger</url>

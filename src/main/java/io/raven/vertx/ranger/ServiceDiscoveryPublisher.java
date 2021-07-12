@@ -19,6 +19,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.ext.web.Router;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.apache.curator.framework.CuratorFramework;
@@ -37,7 +38,12 @@ public class ServiceDiscoveryPublisher {
   private List<Healthcheck> healthchecks = Lists.newArrayList();
   private ServiceProvider<ShardInfo> serviceProvider;
   private ServiceDiscoveryClient serviceDiscoveryClient;
+  @Getter
   private CuratorFramework curator;
+  @Getter
+  private String namespace;
+  @Getter
+  private String serviceName;
   private RotationStatus rotationStatus;
 
   @Builder
@@ -47,8 +53,8 @@ public class ServiceDiscoveryPublisher {
   }
 
   public void start() throws Exception {
-    var namespace = config.getString("namespace");
-    var serviceName = config.getString("serviceName");
+    this.namespace = config.getString("namespace");
+    this.serviceName = config.getString("serviceName");
     var hostname = getHost();
     var port = getPort();
     rotationStatus = new RotationStatus(config.getBoolean("inRotationStatus", true));
