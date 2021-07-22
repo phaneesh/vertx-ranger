@@ -6,7 +6,7 @@
 
     <groupId>io.raven.vertx</groupId>
     <artifactId>vertx-service-discovery-backend-ranger</artifactId>
-    <version>4.0.3-2</version>
+    <version>4.0.3-5</version>
 
     <name>vertx-ranger</name>
     <url>https://github.com/phaneesh/vertx-ranger</url>
@@ -139,6 +139,11 @@
             <artifactId>vertx-web</artifactId>
             <version>${vertx.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-client</artifactId>
+            <version>${vertx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

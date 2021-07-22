@@ -15,6 +15,7 @@ import io.raven.vertx.ranger.handlers.OORHandler;
 import io.raven.vertx.ranger.healthchecks.InitialDelayChecker;
 import io.raven.vertx.ranger.healthchecks.InternalHealthChecker;
 import io.raven.vertx.ranger.healthchecks.RotationCheck;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.ext.web.Router;
@@ -35,6 +36,7 @@ public class ServiceDiscoveryPublisher {
 
   private JsonObject config;
   private Router router;
+  private Vertx vertx;
   private List<Healthcheck> healthchecks = Lists.newArrayList();
   private ServiceProvider<ShardInfo> serviceProvider;
   private ServiceDiscoveryClient serviceDiscoveryClient;
@@ -47,12 +49,14 @@ public class ServiceDiscoveryPublisher {
   private RotationStatus rotationStatus;
 
   @Builder
-  public ServiceDiscoveryPublisher(final JsonObject config, final Router router) {
+  public ServiceDiscoveryPublisher(final JsonObject config, final Router router, final Vertx vertx) {
     this.config = config;
     this.router = router;
+    this.vertx = vertx;
   }
 
   public void start() throws Exception {
+    log.info("Service discovery configuration: " +config.encode());
     this.namespace = config.getString("namespace");
     this.serviceName = config.getString("serviceName");
     var hostname = getHost();
@@ -72,7 +76,7 @@ public class ServiceDiscoveryPublisher {
     );
     serviceProvider.start();
 
-    serviceDiscoveryClient = buildDiscoveryClient(namespace, serviceName);
+    serviceDiscoveryClient = buildDiscoveryClient();
     serviceDiscoveryClient.start();
 
     router.get("/instances").handler(InfoHandler.builder()
@@ -111,15 +115,11 @@ public class ServiceDiscoveryPublisher {
     this.healthchecks.add(healthcheck);
   }
 
-  public ServiceDiscoveryClient buildDiscoveryClient(String namespace, String serviceName) {
+  public ServiceDiscoveryClient buildDiscoveryClient() {
     return ServiceDiscoveryClient.fromCurator()
         .curator(curator)
-        .namespace(namespace)
-        .serviceName(serviceName)
-        .environment(config.getString("environment", "stage"))
-        .objectMapper(DatabindCodec.mapper())
-        .refreshTimeMs(config.getInteger("refreshTimeMs", Constants.MINIMUM_REFRESH_TIME))
-        .disableWatchers(config.getBoolean("disableWatchers", true))
+        .clientConfig(config)
+        .vertx(vertx)
         .build();
   }
 
